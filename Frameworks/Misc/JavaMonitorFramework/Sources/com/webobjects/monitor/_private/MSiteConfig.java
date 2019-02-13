@@ -163,7 +163,10 @@ public class MSiteConfig extends MObject {
 
     public boolean hasChanges() { return _hasChanges; }
     public void resetChanges() { _hasChanges = false; }
-    public void dataHasChanged() { _hasChanges = true; }
+    public void dataHasChanged() {
+    	System.out.println( "dataHasChanged(), threadId " + Thread.currentThread().getId() );
+    	_hasChanges = true;
+    }
     /**********/
     
 
