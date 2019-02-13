@@ -159,14 +159,11 @@ public class MSiteConfig extends MObject {
 
     
     /********** Change Notifications **********/
-    protected boolean _hasChanges = true;
+    protected volatile boolean _hasChanges = true;
 
     public boolean hasChanges() { return _hasChanges; }
     public void resetChanges() { _hasChanges = false; }
-    public void dataHasChanged() {
-    	System.out.println( "dataHasChanged(), threadId " + Thread.currentThread().getId() );
-    	_hasChanges = true;
-    }
+    public void dataHasChanged() { _hasChanges = true; }
     /**********/
     
 
@@ -743,35 +740,37 @@ public class MSiteConfig extends MObject {
         saveSiteConfig(fileForSiteConfig(), generateSiteConfigXML(), false);
     }
 
-    public void saveSiteConfig(File sc, String value, boolean compress) {
-        try {
-            if ( sc.exists() && !sc.canWrite() ) {
-                log.error("Don't have permission to write to file {} as this user, please change the permissions.", sc.getAbsolutePath());
-                String pre = WOApplication.application().name() + " - " + localHostName;
-                globalErrorDictionary.takeValueForKey(pre + " Don't have permission to write to file " + sc.getAbsolutePath() + " as this user, please change the permissions.", "archiveSiteConfig");
-                return;
-            }
-            if(compress) {
-                sc = new File(sc.getParentFile(), sc.getName() + ".gz");
-                ERXFileUtilities.stringToGZippedFile(value, sc);
-            }
-            else {
-                _NSStringUtilities.writeToFile(sc, value);
-            }
-            globalErrorDictionary.takeValueForKey(null, "archiveSiteConfig");
-       }
-        catch (IOException e)
-        {
-            String message = "Cannot write to file " + sc.getAbsolutePath() + ". IOException: " + e.getLocalizedMessage();
-            log.error(message);
-            String pre = WOApplication.application().name() + " - " + localHostName;
-            globalErrorDictionary.takeValueForKey(pre + message, "archiveSiteConfig");
-        } catch (NSForwardException ne) {
-            log.error("Cannot write to file {}. Possible Permissions Problem.", sc.getAbsolutePath());
-            String pre = WOApplication.application().name() + " - " + localHostName;
-            globalErrorDictionary.takeValueForKey(pre + " Cannot write to file " + sc.getAbsolutePath() + ". Possible Permissions Problem.", "archiveSiteConfig");
-        }
-    }
+	public void saveSiteConfig( File sc, String value, boolean compress ) {
+		try {
+			System.out.println( "saveSiteConfig 1" );
+			if( sc.exists() && !sc.canWrite() ) {
+				log.error( "Don't have permission to write to file {} as this user, please change the permissions.", sc.getAbsolutePath() );
+				String pre = WOApplication.application().name() + " - " + localHostName;
+				globalErrorDictionary.takeValueForKey( pre + " Don't have permission to write to file " + sc.getAbsolutePath() + " as this user, please change the permissions.", "archiveSiteConfig" );
+				return;
+			}
+			if( compress ) {
+				System.out.println( "saveSiteConfig 2a" );
+				sc = new File( sc.getParentFile(), sc.getName() + ".gz" );
+				ERXFileUtilities.stringToGZippedFile( value, sc );
+				System.out.println( "saveSiteConfig 2b " + sc.getName() );
+			} else {
+				System.out.println( "saveSiteConfig 3a" );
+				_NSStringUtilities.writeToFile( sc, value );
+				System.out.println( "saveSiteConfig 3b " + sc.getName() );
+			}
+			globalErrorDictionary.takeValueForKey( null, "archiveSiteConfig" );
+		} catch( IOException e ) {
+			String message = "Cannot write to file " + sc.getAbsolutePath() + ". IOException: " + e.getLocalizedMessage();
+			log.error( message );
+			String pre = WOApplication.application().name() + " - " + localHostName;
+			globalErrorDictionary.takeValueForKey( pre + message, "archiveSiteConfig" );
+		} catch( NSForwardException ne ) {
+			log.error( "Cannot write to file {}. Possible Permissions Problem.", sc.getAbsolutePath() );
+			String pre = WOApplication.application().name() + " - " + localHostName;
+			globalErrorDictionary.takeValueForKey( pre + " Cannot write to file " + sc.getAbsolutePath() + ". Possible Permissions Problem.", "archiveSiteConfig" );
+		}
+	}
 
     public void archiveAdaptorConfig() {
         try {
