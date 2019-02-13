@@ -727,12 +727,12 @@ public class MSiteConfig extends MObject {
         try {
             File sc = fileForSiteConfig();
             if ( sc.exists() ) {
-            	log.info( "Creating SiteConfig backup at " + sc.getPath() );
+            	System.out.println( "Creating SiteConfig backup at " + sc.getPath() );
                 NSTimestampFormatter formatter = new NSTimestampFormatter("%Y%m%d%H%M%S%F");
                 File renamedFile = new File(pathForSiteConfig() + "." + formatter.format(new NSTimestamp()));
                 sc.renameTo(renamedFile);
             } else {
-            	log.warn( "SiteConfig backup requested but file not available at " + sc.getPath() );
+            	System.out.println( "SiteConfig backup requested but file not available at " + sc.getPath() );
             }
         } catch (NSForwardException ne) {
             log.error("Cannot backup file {}. Possible Permissions Problem.", pathForSiteConfig());
@@ -778,7 +778,7 @@ public class MSiteConfig extends MObject {
     public void archiveAdaptorConfig() {
         try {
             File ac = fileForAdaptorConfig();
-            log.info( "Archiving adaptor config to " + ac.getPath() );
+            System.out.println( "Archiving adaptor config to " + ac.getPath() );
             if ( ac.exists() && !ac.canWrite() ) {
                 log.error("Don't have permission to write to file {} as this user, please change the permissions.", fileForAdaptorConfig());
                 String pre = WOApplication.application().name() + " - " + localHostName;
